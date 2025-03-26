@@ -30,8 +30,7 @@ jobs:
       - name: scan
         run: |
           semgrep \
-            --sarif --output report.sarif \
-            --metrics=off 
+            --sarif --output report.sarif
 
       - name: save report as pipeline artifact
         uses: actions/upload-artifact@v4
