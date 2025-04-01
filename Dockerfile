@@ -1,6 +1,6 @@
 from alpine/curl:8.12.1 as build
 
-RUN curl -v --trace -o /usr/bin/safeliner-dfg-cli-0.0.3 https://devplatform-security-safeliner.t-static.ru/dfg-cli/0.0.3/linux/amd64/safeliner-dfg-cli
+RUN curl -v -o /usr/bin/safeliner-dfg-cli-0.0.3 https://devplatform-security-safeliner.t-static.ru/dfg-cli/0.0.3/linux/amd64/safeliner-dfg-cli
 
 from python:3.12.9-slim
 
