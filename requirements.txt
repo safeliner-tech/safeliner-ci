@@ -1,0 +1,4 @@
+dotenv
+click
+requests
+semgrep
