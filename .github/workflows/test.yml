@@ -60,6 +60,6 @@ jobs:
           FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER }}
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
         run: |
-          echo $DFG_BUILDER_PATH
-          pwd
-          python /usr/bin/integration.py
+          cp /usr/bin/integration.py ./integration.py
+          python /usr/bin/integration.py apply-report report.sarif
+          rm -f ./integration.py
