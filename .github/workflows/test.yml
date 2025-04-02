@@ -55,6 +55,11 @@ jobs:
 
       - name: Run Safeliner
         env:
-          DFG_BUILDER_PATH: ${{ env.DFG_BUILDER_PATH }}
+          DFG_BUILDER_PATH: ${{ vars.DFG_BUILDER_PATH }}
+          ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER }}
+          FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER }}
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
         run: |
           echo $DFG_BUILDER_PATH
+          pwd
+          python /usr/bin/integration.py
