@@ -35,6 +35,7 @@ jobs:
           path: report.sarif
 
   autofix:
+    needs: scan
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ostrovskyde/safeliner-ci:0.0.1
