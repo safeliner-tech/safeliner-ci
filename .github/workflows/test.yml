@@ -54,5 +54,7 @@ jobs:
           name: report.sarif
 
       - name: Run Safeliner
+        env:
+          DFG_BUILDER_PATH: ${{ env.DFG_BUILDER_PATH }}
         run: |
           echo $DFG_BUILDER_PATH
