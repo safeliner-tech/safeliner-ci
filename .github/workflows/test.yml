@@ -38,7 +38,7 @@ jobs:
     needs: scan
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ostrovskyde/safeliner-ci:0.0.1
+      image: ghcr.io/ostrovskyde/safeliner-ci:0.0.2
 
     steps:
       # Checks-out your repository
