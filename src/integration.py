@@ -301,7 +301,8 @@ def apply_report(sarif_path: str, semgrep_config: str, feedback: bool):
         report["runs"][0]["results"],
         lambda x: x["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
     ):
-        perform_file_analysis(semgrep_config, file_path, list(findings), report, feedback=feedback)
+        if not file_path.startswith("."):
+            perform_file_analysis(semgrep_config, file_path, list(findings), report, feedback=feedback)
         
 @click.command()
 @click.argument('sarif_path')
