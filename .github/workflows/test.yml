@@ -51,6 +51,9 @@ jobs:
         with:
           app-id: ${{ vars.SAFELINER_APP_ID }}
           private-key: ${{ secrets.SAFELINER_APP_SECRET }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            test-vuln-fixes
       
       # Checks-out your repository
       - name: checkout repo
@@ -87,8 +90,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          git config user.name "Safeliner CI"
-          git config user.email "safeliner@users.noreply.github.com"
+          git config user.name '${{ steps.generate-token.outputs.app-slug }}[bot]'
+          git config user.email '${{ steps.generate-token.outputs.user-id }}+${{ steps.generate-token.outputs.app-slug }}[bot]@users.noreply.github.com'
           git checkout -b "safeliner-fixes"
           git add -A
           git commit -m "Safeliner auto fixes for SAST issues"
