@@ -4,6 +4,11 @@ RUN curl -v -o /usr/bin/safeliner-dfg-cli-0.0.3 https://devplatform-security-saf
 
 from python:3.12.9-slim
 
+RUN apt-get update \
+&& apt-get install -y --no-install-recommends git \
+&& apt-get purge -y --auto-remove \
+&& rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
