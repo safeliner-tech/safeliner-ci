@@ -60,6 +60,10 @@ jobs:
         with: 
           name: report.sarif
 
+      - name: Сheck Git
+        run: |
+          git status
+
       - name: Run Safeliner
         env:
           DFG_BUILDER_PATH: ${{ vars.DFG_BUILDER_PATH }}
