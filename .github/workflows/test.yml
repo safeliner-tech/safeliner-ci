@@ -19,7 +19,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
         with:
-          repository: ostrovskyde/fleet
+          repository: ostrovskyde/WebGoat
 
       # Scan repo with Semgrep
       - name: scan
@@ -34,13 +34,6 @@ jobs:
           name: report.sarif
           path: report.sarif
 
-  connectivity:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check connectivity
-        run: |
-          curl -s https://safeliner.tech/analyze
-
   autofix:
     needs: scan
     runs-on: ubuntu-latest
@@ -48,15 +41,26 @@ jobs:
       image: ghcr.io/ostrovskyde/safeliner-ci:0.0.4
 
     steps:
+      - name: Generate Safeliner App token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.SAFELINER_APP_ID }}
+          private-key: ${{ secrets.SAFELINER_APP_SECRET }}
+      
       # Checks-out your repository
       - name: checkout repo
         uses: actions/checkout@v4
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
-          repository: ostrovskyde/fleet
+          repository: ostrovskyde/WebGoat
 
       # Get Sarif report from scanner job
       - name: Download report
         uses: actions/download-artifact@v4
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         with: 
           name: report.sarif
 
@@ -73,7 +77,9 @@ jobs:
           ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER }}
           FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER }}
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           cp /usr/bin/integration.py ./integration.py
           python /usr/bin/integration.py apply-report report.sarif
           rm -f ./integration.py
+          
