@@ -8,6 +8,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -51,16 +54,13 @@ jobs:
       # Checks-out your repository
       - name: checkout repo
         uses: actions/checkout@v4
-        env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
           repository: ostrovskyde/test-vuln-fixes
+          token: ${{ steps.generate-token.outputs.token }}
 
       # Get Sarif report from scanner job
       - name: Download report
         uses: actions/download-artifact@v4
-        env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         with: 
           name: report.sarif
 
@@ -77,7 +77,6 @@ jobs:
           ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER }}
           FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER }}
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           cp /usr/bin/integration.py ./integration.py
           python /usr/bin/integration.py apply-report report.sarif
