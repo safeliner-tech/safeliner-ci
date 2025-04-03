@@ -11,6 +11,7 @@ on:
 permissions:
   contents: write
   packages: read
+  pull-requests: write
 
 jobs:
   scan:
@@ -96,4 +97,33 @@ jobs:
           git add -A
           git commit -m "Safeliner auto fixes for SAST issues"
           git push --set-upstream origin "safeliner-fixes"
+          
+  open-pr:
+    needs: autofix
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Safeliner App token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.SAFELINER_APP_ID }}
+          private-key: ${{ secrets.SAFELINER_APP_SECRET }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            test-vuln-fixes
+      
+      # Checks-out branch with fixes
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: ostrovskyde/test-vuln-fixes
+          token: ${{ steps.generate-token.outputs.token }}
+          ref: "safeliner-fixes"
+      
+      - name: Open PR
+        env: 
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          gh pr create --title "Safeliner SAST auto-fixes" --body "Please check what Safeliner suggest to change in order to make your code secure" --base main
           
