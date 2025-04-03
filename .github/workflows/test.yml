@@ -19,7 +19,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
         with:
-          repository: ostrovskyde/WebGoat
+          repository: ostrovskyde/test-vuln-fixes
 
       # Scan repo with Semgrep
       - name: scan
@@ -54,7 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
-          repository: ostrovskyde/WebGoat
+          repository: ostrovskyde/test-vuln-fixes
 
       # Get Sarif report from scanner job
       - name: Download report
@@ -82,4 +82,13 @@ jobs:
           cp /usr/bin/integration.py ./integration.py
           python /usr/bin/integration.py apply-report report.sarif
           rm -f ./integration.py
+
+      - name: Push Changes
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          git checkout -b "safeliner-fixes"
+          git add -A
+          git commit -m "Safeliner auto fixes for SAST issues"
+          git push --set-upstream origin "safeliner-fixes"
           
