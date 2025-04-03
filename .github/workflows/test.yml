@@ -61,7 +61,10 @@ jobs:
           name: report.sarif
 
       - name: Сheck Git
+        env:
+          WORKSPACE: ${{ github.workspace }}
         run: |
+          git config --global --add safe.directory ${WORKSPACE}
           git status
 
       - name: Run Safeliner
