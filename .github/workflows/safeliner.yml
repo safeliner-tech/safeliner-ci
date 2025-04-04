@@ -18,7 +18,7 @@ env:
   REPO_NAME: vuln-repo-example
   GENERATED_BRANCH_NAME: 'safeliner-fixes-${{ github.run_id }}'
   GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes ${{github.event.repository.updated_at}}'
-  PR_TARGET_BRANCH: main
+  PR_TARGET_BRANCH: master
 
 jobs:
   scan:
