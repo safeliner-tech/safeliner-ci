@@ -14,6 +14,7 @@ RUN pip install -r requirements.txt
 
 COPY src/integration.py /usr/bin/integration.py
 COPY --from=build /usr/bin/safeliner-dfg-cli-0.0.3 /usr/bin/safeliner-dfg-cli-0.0.3
-RUN chmod +x /usr/bin/safeliner-dfg-cli-0.0.3
+RUN ln -s /usr/bin/safeliner-dfg-cli-0.0.3 /usr/bin/safeliner-dfg-cli
+RUN chmod +x /usr/bin/safeliner-dfg-cli-0.0.3 /usr/bin/safeliner-dfg-cli
 
 CMD [ "/bin/sh" ]

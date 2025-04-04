@@ -2,9 +2,9 @@ name: Safeliner Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ permissions:
 
 env:
   REPO_OWNER: ${{ github.repository_owner }}
-  REPO_NAME: test-vuln-fixes
+  REPO_NAME: vuln-repo-example
   GENERATED_BRANCH_NAME: 'safeliner-fixes-${{ github.run_id }}'
   GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes ${{github.event.repository.updated_at}}'
   PR_TARGET_BRANCH: main
@@ -32,6 +32,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
+          ref: ${{ env.PR_TARGET_BRANCH }}
 
       # Scan repo with Semgrep
       - name: scan
@@ -50,7 +51,7 @@ jobs:
     needs: scan
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ostrovskyde/safeliner-ci:${{ vars.SAFELINER_IMAGE_VERSION || '0.0.4' }}
+      image: ghcr.io/safeliner-tech/safeliner-ci:${{ vars.SAFELINER_IMAGE_VERSION || '0.0.1' }}
 
     steps:
       - name: Generate Safeliner App token
@@ -69,6 +70,7 @@ jobs:
         with:
           repository: ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
           token: ${{ steps.generate-token.outputs.token }}
+          ref: ${{ env.PR_TARGET_BRANCH }}
 
       # Get Sarif report from scanner job
       - name: Download report
@@ -85,10 +87,10 @@ jobs:
 
       - name: Run Safeliner
         env:
-          DFG_BUILDER_PATH: ${{ vars.DFG_BUILDER_PATH }}
-          ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER }}
-          FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER }}
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+          DFG_BUILDER_PATH: ${{ vars.DFG_BUILDER_PATH || '/usr/bin/safeliner-dfg-cli'}}
+          ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER || 'http://safeliner.tech/analyze'}}
+          FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER || 'http://safeliner.tech/feedback'}}
+          BEARER_TOKEN: ${{ secrets.SAFELINER_API_TOKEN }}
         run: |
           cp /usr/bin/integration.py ./integration.py
           python /usr/bin/integration.py apply-report report.sarif
