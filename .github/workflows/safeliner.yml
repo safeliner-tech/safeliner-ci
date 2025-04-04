@@ -18,7 +18,7 @@ env:
   REPO_NAME: vuln-repo-example
   GENERATED_BRANCH_NAME: 'safeliner-fixes-${{ github.run_id }}'
   GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes ${{github.event.repository.updated_at}}'
-  PR_TARGET_BRANCH: main
+  PR_TARGET_BRANCH: master
 
 jobs:
   scan:
@@ -88,8 +88,8 @@ jobs:
       - name: Run Safeliner
         env:
           DFG_BUILDER_PATH: ${{ vars.DFG_BUILDER_PATH || '/usr/bin/safeliner-dfg-cli'}}
-          ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER || 'http://safeliner.tech/analyze'}}
-          FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER || 'http://safeliner.tech/feedback'}}
+          ANALYZE_HANDLER: ${{ vars.ANALYZE_HANDLER || 'https://safeliner.tech/analyze'}}
+          FEEDBACK_HANDLER: ${{ vars.FEEDBACK_HANDLER || 'https://safeliner.tech/feedback'}}
           BEARER_TOKEN: ${{ secrets.SAFELINER_API_TOKEN }}
         run: |
           cp /usr/bin/integration.py ./integration.py
