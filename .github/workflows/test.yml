@@ -13,6 +13,13 @@ permissions:
   packages: read
   pull-requests: write
 
+env:
+  REPO_OWNER: ${{ github.repository_owner }}
+  REPO_NAME: test-vuln-fixes
+  GENERATED_BRANCH_NAME: 'safeliner-fixes-+${{ github.run_id }}'
+  GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes +${{github.event.repository.updated_at}}'
+  PR_TARGET_BRANCH: main
+
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -24,7 +31,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
         with:
-          repository: ostrovskyde/test-vuln-fixes
+          repository: ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
 
       # Scan repo with Semgrep
       - name: scan
@@ -43,7 +50,7 @@ jobs:
     needs: scan
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ostrovskyde/safeliner-ci:0.0.4
+      image: ghcr.io/ostrovskyde/safeliner-ci:+${{ vars.SAFELINER_IMAGE_VERSION || '0.0.4' }}
 
     steps:
       - name: Generate Safeliner App token
@@ -52,15 +59,15 @@ jobs:
         with:
           app-id: ${{ vars.SAFELINER_APP_ID }}
           private-key: ${{ secrets.SAFELINER_APP_SECRET }}
-          owner: ${{ github.repository_owner }}
+          owner: ${{ env.REPO_OWNER }}
           repositories: |
-            test-vuln-fixes
+            ${{ env.REPO_NAME }}
       
       # Checks-out your repository
       - name: checkout repo
         uses: actions/checkout@v4
         with:
-          repository: ostrovskyde/test-vuln-fixes
+          repository: ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
           token: ${{ steps.generate-token.outputs.token }}
 
       # Get Sarif report from scanner job
@@ -86,17 +93,20 @@ jobs:
           cp /usr/bin/integration.py ./integration.py
           python /usr/bin/integration.py apply-report report.sarif
           rm -f ./integration.py
+          rm -f report.sarif
 
       - name: Push Changes
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GIT_USERNAME: '${{ steps.generate-token.outputs.app-slug }}[bot]'
+          GIT_EMAIL: '${{ steps.generate-token.outputs.user-id }}+${{ steps.generate-token.outputs.app-slug }}[bot]@users.noreply.github.com'
         run: |
-          git config user.name '${{ steps.generate-token.outputs.app-slug }}[bot]'
-          git config user.email '${{ steps.generate-token.outputs.user-id }}+${{ steps.generate-token.outputs.app-slug }}[bot]@users.noreply.github.com'
-          git checkout -b "safeliner-fixes"
+          git config user.name "$GIT_USERNAME"
+          git config user.email "$GIT_EMAIL"
+          git checkout -b "$GENERATED_BRANCH_NAME"
           git add -A
           git commit -m "Safeliner auto fixes for SAST issues"
-          git push --set-upstream origin "safeliner-fixes"
+          git push --set-upstream origin "$GENERATED_BRANCH_NAME"
           
   open-pr:
     needs: autofix
@@ -109,21 +119,20 @@ jobs:
         with:
           app-id: ${{ vars.SAFELINER_APP_ID }}
           private-key: ${{ secrets.SAFELINER_APP_SECRET }}
-          owner: ${{ github.repository_owner }}
+          owner: ${{ env.REPO_OWNER }}
           repositories: |
-            test-vuln-fixes
+            ${{ env.REPO_NAME }}
       
       # Checks-out branch with fixes
       - name: checkout repo
         uses: actions/checkout@v4
         with:
-          repository: ostrovskyde/test-vuln-fixes
+          repository: ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
           token: ${{ steps.generate-token.outputs.token }}
-          ref: "safeliner-fixes"
+          ref: ${{ env.GENERATED_BRANCH_NAME }}
       
       - name: Open PR
         env: 
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh pr create --title "Safeliner SAST auto-fixes" --body "Please check what Safeliner suggest to change in order to make your code secure" --base main
-          
+          gh pr create --title "$GENERATED_PR_TITLE" --body "Please check what Safeliner suggest to change in order to make your code secure" --base $PR_TARGET_BRANCH --head $GENERATED_BRANCH_NAME
