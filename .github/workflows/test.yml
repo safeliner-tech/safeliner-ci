@@ -16,8 +16,8 @@ permissions:
 env:
   REPO_OWNER: ${{ github.repository_owner }}
   REPO_NAME: test-vuln-fixes
-  GENERATED_BRANCH_NAME: 'safeliner-fixes-+${{ github.run_id }}'
-  GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes +${{github.event.repository.updated_at}}'
+  GENERATED_BRANCH_NAME: 'safeliner-fixes-${{ github.run_id }}'
+  GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes ${{github.event.repository.updated_at}}'
   PR_TARGET_BRANCH: main
 
 jobs:
@@ -50,7 +50,7 @@ jobs:
     needs: scan
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ostrovskyde/safeliner-ci:+${{ vars.SAFELINER_IMAGE_VERSION || '0.0.4' }}
+      image: ghcr.io/ostrovskyde/safeliner-ci:${{ vars.SAFELINER_IMAGE_VERSION || '0.0.4' }}
 
     steps:
       - name: Generate Safeliner App token
