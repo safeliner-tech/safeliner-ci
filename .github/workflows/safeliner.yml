@@ -15,10 +15,10 @@ permissions:
 
 env:
   REPO_OWNER: ${{ github.repository_owner }}
-  REPO_NAME: vuln-repo-example
+  REPO_NAME: validation-benchmarks
   GENERATED_BRANCH_NAME: 'safeliner-fixes-${{ github.run_id }}'
   GENERATED_PR_TITLE: 'Safeliner SAST auto-fixes ${{github.event.repository.updated_at}}'
-  PR_TARGET_BRANCH: master
+  PR_TARGET_BRANCH: main
 
 jobs:
   scan:
